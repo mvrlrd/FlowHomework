@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,13 +21,12 @@ class MainActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED){
                 catsViewModel.catsFlow.collect{
                     when(it){
-                        is Result.Success<Fact> ->{view.populate(it)}
+                        is Result.Success<Fact> ->{view.populate((it as Result.Success<Fact>).data)}
                         is Result.Error -> {
-                            val text = it.message?:"error"
+                            val text = it.error.message?:"error"
                             showToast(text)
                         }
                     }
-
                 }
             }
         }
