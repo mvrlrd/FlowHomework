@@ -1,13 +1,12 @@
 package otus.homework.flowcats
 
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+
 
 class CatsViewModel(
     private val catsRepository: CatsRepository
@@ -20,13 +19,11 @@ class CatsViewModel(
     val catsFlow: StateFlow<Result> = _catsFlow.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                catsRepository.listenForCatFacts().collect {
-                    _catsFlow.value = it
-                }
+        catsRepository.listenForCatFacts()
+            .onEach {
+                _catsFlow.value = it
             }
-        }
+            .launchIn(viewModelScope)
     }
 }
 
